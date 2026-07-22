@@ -9,9 +9,9 @@ const commands = [
 
 const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
 
-const CLIENT_ID = "PON_AQUI_EL_ID_DE_TU_BOT";
+const CLIENT_ID = "1529338284273176576";
 
-const GUILD_ID = "PON_AQUI_EL_ID_DE_TU_SERVIDOR";
+const GUILD_ID = "1138329385955500072";
 
 (async () => {
     try {
