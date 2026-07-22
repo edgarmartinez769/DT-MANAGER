@@ -24,13 +24,12 @@ module.exports = {
         }
 
 
-        // Selección de formato
+        // Elegir formato
         if (interaction.customId.startsWith("match_")) {
 
             const format = interaction.customId.replace("match_", "");
 
             const availableFormations = Object.keys(formations[format]);
-
 
             const buttons = new ActionRowBuilder();
 
@@ -63,7 +62,7 @@ module.exports = {
 
 
 
-        // Selección de formación
+        // Elegir formación
         if (interaction.customId.startsWith("formation_")) {
 
 
@@ -97,6 +96,24 @@ module.exports = {
 
 
 
+            const positionButtons = new ActionRowBuilder();
+
+
+            positions.forEach((position, index) => {
+
+                positionButtons.addComponents(
+
+                    new ButtonBuilder()
+                        .setCustomId(`join_${matchId}_${index}`)
+                        .setLabel(position)
+                        .setStyle(ButtonStyle.Success)
+
+                );
+
+            });
+
+
+
             await interaction.update({
 
                 content:
@@ -108,12 +125,9 @@ module.exports = {
 
                     `🟢 Estado: Buscando jugadores\n\n` +
 
-                    `Posiciones disponibles:\n\n` +
+                    `Selecciona tu posición:`,
 
-                    positions.join("\n"),
-
-
-                components: []
+                components: [positionButtons]
 
             });
 
