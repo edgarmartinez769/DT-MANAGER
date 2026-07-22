@@ -1,3 +1,5 @@
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+
 module.exports = {
     name: "interactionCreate",
 
@@ -14,10 +16,11 @@ module.exports = {
                 ephemeral: true
             });
 
+            return;
         }
 
 
-        // Formatos de partido
+        // Selección de formato
         if (interaction.customId.startsWith("match_")) {
 
             const format = interaction.customId.replace("match_", "");
@@ -62,15 +65,32 @@ module.exports = {
             }
 
 
+            const formationButtons = new ActionRowBuilder();
+
+            formations.forEach((formation, index) => {
+
+                formationButtons.addComponents(
+                    new ButtonBuilder()
+                        .setCustomId(`formation_${format}_${index}`)
+                        .setLabel(formation)
+                        .setStyle(ButtonStyle.Secondary)
+                );
+
+            });
+
+
             await interaction.update({
+
                 content:
                     `⚽ **DT MANAGER**\n\n` +
                     `Formato seleccionado: **${format}**\n\n` +
-                    `📐 Selecciona una formación:\n\n` +
-                    formations.join("\n"),
-                components: []
+                    `📐 Selecciona una formación:`,
+
+                components: [formationButtons]
+
             });
 
         }
+
     },
 };
