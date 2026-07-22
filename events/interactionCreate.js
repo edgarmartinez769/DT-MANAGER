@@ -185,45 +185,82 @@ module.exports = {
 
 
         // Iniciar partido
-        if (interaction.customId.startsWith("start_")) {
+if (interaction.customId.startsWith("start_")) {
 
 
-            const matchId = interaction.customId.replace("start_", "");
-
-            const match = matches.get(matchId);
+    const createLineupImage = require("../utils/lineupImage");
 
 
+    const matchId = interaction.customId.replace("start_", "");
 
-            if (interaction.user.id !== match.creator) {
-
-                return interaction.reply({
-
-                    content: "❌ Solo el DT que creó el partido puede iniciarlo.",
-
-                    ephemeral: true
-
-                });
-
-            }
+    const match = matches.get(matchId);
 
 
 
-            await interaction.update({
-
-                content:
-                    `🚀 **PARTIDO INICIADO**\n\n` +
-                    `⚽ Formación: **${match.formation}**\n\n` +
-                    `👥 Jugadores:\n\n` +
-                    ` ${createPlayerList(match)}`,
-
-                components: []
-
-            });
+    if (!match) return;
 
 
-            return;
 
-        }
+    if (interaction.user.id !== match.creator) {
+
+        return interaction.reply({
+
+            content: "❌ Solo el DT que creó el partido puede iniciarlo.",
+
+            ephemeral: true
+
+        });
+
+    }
+
+
+
+    try {
+
+        const image = await createLineupImage(match);
+
+
+
+        await interaction.update({
+
+            content:
+                `🚀 **PARTIDO INICIADO**\n\n` +
+                `⚽ Formación: **${match.formation}**\n\n` +
+                `👥 Alineación:`,
+
+            files: [
+                {
+                    attachment: image,
+                    name: "alineacion.png"
+                }
+            ],
+
+            components: []
+
+        });
+
+
+
+    } catch (error) {
+
+        console.error(error);
+
+
+        await interaction.reply({
+
+            content: "❌ Error generando la imagen.",
+
+            ephemeral: true
+
+        });
+
+    }
+
+
+
+    return;
+
+}
 
 
 
