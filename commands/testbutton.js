@@ -3,7 +3,7 @@ const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = re
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("testbutton")
-        .setDescription("Prueba los botones de DT Manager"),
+        .setDescription("Prueba los botones de Tactify"),
 
     async execute(interaction) {
 
@@ -16,7 +16,7 @@ module.exports = {
             .addComponents(button);
 
         await interaction.reply({
-            content: "Prueba de botones de DT Manager 🔥",
+            content: "Prueba de botones de Tactify 🔥",
             components: [row]
         });
     },
