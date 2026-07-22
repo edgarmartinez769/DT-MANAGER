@@ -1,23 +1,36 @@
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+const { REST, Routes } = require("discord.js");
+const fs = require("fs");
+const path = require("path");
 
-module.exports = {
-    data: new SlashCommandBuilder()
-        .setName("testbutton")
-        .setDescription("Prueba los botones de DT Manager"),
+const commands = [];
 
-    async execute(interaction) {
+const commandsPath = path.join(__dirname, "commands");
+const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith(".js"));
 
-        const button = new ButtonBuilder()
-            .setCustomId("test_button")
-            .setLabel("Presiona aquí ⚽")
-            .setStyle(ButtonStyle.Primary);
+for (const file of commandFiles) {
+    const command = require(`./commands/${file}`);
+    commands.push(command.data.toJSON());
+}
 
-        const row = new ActionRowBuilder()
-            .addComponents(button);
+const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
 
-        await interaction.reply({
-            content: "Prueba de botones de DT Manager 🔥",
-            components: [row]
-        });
-    },
-};
+const CLIENT_ID = "TU_APPLICATION_ID";
+const GUILD_ID = "TU_SERVER_ID";
+
+(async () => {
+    try {
+        console.log("Registrando comandos...");
+
+        await rest.put(
+            Routes.applicationGuildCommands(
+                CLIENT_ID,
+                GUILD_ID
+            ),
+            { body: commands }
+        );
+
+        console.log("Comandos registrados correctamente ⚽");
+    } catch (error) {
+        console.error(error);
+    }
+})();
