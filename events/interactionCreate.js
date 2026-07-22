@@ -24,6 +24,7 @@ module.exports = {
         }
 
 
+
         // Elegir formato
         if (interaction.customId.startsWith("match_")) {
 
@@ -62,6 +63,7 @@ module.exports = {
 
 
 
+
         // Elegir formación
         if (interaction.customId.startsWith("formation_")) {
 
@@ -96,12 +98,17 @@ module.exports = {
 
 
 
-            const positionButtons = new ActionRowBuilder();
+            // Crear botones de posiciones
+            const positionRows = [];
+
+            let row = new ActionRowBuilder();
+
 
 
             positions.forEach((position, index) => {
 
-                positionButtons.addComponents(
+
+                row.addComponents(
 
                     new ButtonBuilder()
                         .setCustomId(`join_${matchId}_${index}`)
@@ -110,7 +117,24 @@ module.exports = {
 
                 );
 
+
+                // Máximo 5 botones por fila
+                if (row.components.length === 5) {
+
+                    positionRows.push(row);
+                    row = new ActionRowBuilder();
+
+                }
+
             });
+
+
+
+            if (row.components.length > 0) {
+
+                positionRows.push(row);
+
+            }
 
 
 
@@ -127,11 +151,15 @@ module.exports = {
 
                     `Selecciona tu posición:`,
 
-                components: [positionButtons]
+                components: positionRows
 
             });
 
+
+            return;
         }
+
+
 
     },
 };
