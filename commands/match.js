@@ -1,4 +1,10 @@
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+const { 
+    SlashCommandBuilder, 
+    ActionRowBuilder, 
+    ButtonBuilder, 
+    ButtonStyle, 
+    EmbedBuilder 
+} = require("discord.js");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -7,34 +13,59 @@ module.exports = {
 
     async execute(interaction) {
 
+        const embed = new EmbedBuilder()
+            .setTitle("⚽ DT MANAGER")
+            .setDescription(
+                "🏟️ **CREACIÓN DE PARTIDO**\n\n" +
+                "Selecciona el formato del encuentro:\n\n" +
+                "👥 Cada formato tendrá sus propias formaciones y posiciones."
+            )
+            .addFields(
+                {
+                    name: "📋 Estado",
+                    value: "🟢 Configurando partido",
+                    inline: true
+                },
+                {
+                    name: "👔 Organizador",
+                    value: `${interaction.user}`,
+                    inline: true
+                },
+                {
+                    name: "⭐ Creado por",
+                    value: "66luxe",
+                    inline: true
+                }
+            )
+            .setFooter({
+                text: "DT Manager • LPMX • Creado por 66luxe"
+            });
+
         const buttons = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId("match_5v5")
-                    .setLabel("5v5")
+                    .setLabel("⚽ 5v5")
                     .setStyle(ButtonStyle.Primary),
 
                 new ButtonBuilder()
                     .setCustomId("match_6v6")
-                    .setLabel("6v6")
+                    .setLabel("⚽ 6v6")
                     .setStyle(ButtonStyle.Primary),
 
                 new ButtonBuilder()
                     .setCustomId("match_7v7")
-                    .setLabel("7v7")
-                    .setStyle(ButtonStyle.Primary),
+                    .setLabel("⚽ 7v7")
+                    .setStyle(ButtonStyle.Success),
 
                 new ButtonBuilder()
                     .setCustomId("match_8v8")
-                    .setLabel("8v8")
+                    .setLabel("⚽ 8v8")
                     .setStyle(ButtonStyle.Primary)
             );
 
         await interaction.reply({
-            content:
-                "⚽ **DT Manager**\n\n" +
-                "Crear nuevo partido\n\n" +
-                "Selecciona el formato:",
+            embeds: [embed],
             components: [buttons]
         });
     },
