@@ -16,21 +16,17 @@ const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
 
 const CLIENT_ID = "1529338284273176576";
 
-const GUILD_ID = "1138329385955500072";
-
 (async () => {
     try {
-        console.log("Registrando comandos...");
+        console.log("Registrando comandos globales...");
 
         await rest.put(
-            Routes.applicationGuildCommands(
-                CLIENT_ID,
-                GUILD_ID
-            ),
+            Routes.applicationCommands(CLIENT_ID),
             { body: commands }
         );
 
-        console.log("Comandos registrados correctamente ⚽");
+        console.log("✅ Comandos globales registrados correctamente.");
+
     } catch (error) {
         console.error(error);
     }
