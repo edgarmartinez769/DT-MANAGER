@@ -63,17 +63,14 @@ module.exports = {
 
 
 
-
-        // Elegir formación
+        // Elegir formación y crear partido
         if (interaction.customId.startsWith("formation_")) {
 
 
             const data = interaction.customId.split("_");
 
-
             const format = data[1];
             const formation = data[2];
-
 
             const positions = formations[format][formation];
 
@@ -98,7 +95,6 @@ module.exports = {
 
 
 
-            // Crear botones de posiciones
             const positionRows = [];
 
             let row = new ActionRowBuilder();
@@ -106,7 +102,6 @@ module.exports = {
 
 
             positions.forEach((position, index) => {
-
 
                 row.addComponents(
 
@@ -118,7 +113,6 @@ module.exports = {
                 );
 
 
-                // Máximo 5 botones por fila
                 if (row.components.length === 5) {
 
                     positionRows.push(row);
@@ -142,13 +136,9 @@ module.exports = {
 
                 content:
                     `⚽ **PARTIDO CREADO**\n\n` +
-
                     `👥 Formato: **${format}**\n` +
-
                     `📐 Formación: **${formation}**\n\n` +
-
                     `🟢 Estado: Buscando jugadores\n\n` +
-
                     `Selecciona tu posición:`,
 
                 components: positionRows
@@ -160,6 +150,88 @@ module.exports = {
         }
 
 
+
+        // Unirse a una posición
+        if (interaction.customId.startsWith("join_")) {
+
+
+            const data = interaction.customId.split("_");
+
+
+            const matchId = data[1];
+            const positionIndex = Number(data[2]);
+
+
+            const match = matches.get(matchId);
+
+
+            if (!match) {
+
+                await interaction.reply({
+
+                    content: "❌ Este partido ya no existe.",
+
+                    ephemeral: true
+
+                });
+
+                return;
+            }
+
+
+
+            const position = match.positions[positionIndex];
+
+
+
+            // Revisar si la posición ya está ocupada
+
+            if (match.players[position]) {
+
+                await interaction.reply({
+
+                    content: "❌ Esa posición ya está ocupada.",
+
+                    ephemeral: true
+
+                });
+
+                return;
+
+            }
+
+
+
+            // Guardar jugador
+
+            match.players[position] = interaction.user.username;
+
+
+
+            let playerList = "";
+
+
+            match.positions.forEach((pos) => {
+
+                playerList += `\n${pos}: ${match.players[pos] || "Libre"}`;
+
+            });
+
+
+
+            await interaction.update({
+
+                content:
+                    `⚽ **PARTIDO CREADO**\n\n` +
+                    `👥 Formato: **${match.format}**\n` +
+                    `📐 Formación: **${match.formation}**\n\n` +
+                    `👥 Jugadores:${playerList}`,
+
+                components: []
+
+            });
+
+        }
 
     },
 };
