@@ -1,4 +1,4 @@
-const { createCanvas, loadImage } = require("canvas");
+const { createCanvas } = require("canvas");
 
 
 async function createLineupImage(match) {
@@ -13,6 +13,7 @@ async function createLineupImage(match) {
     // Fondo de cancha
 
     ctx.fillStyle = "#1f8f3a";
+
     ctx.fillRect(0, 0, 1000, 700);
 
 
@@ -20,6 +21,7 @@ async function createLineupImage(match) {
     // Líneas de cancha
 
     ctx.strokeStyle = "white";
+
     ctx.lineWidth = 5;
 
 
@@ -31,13 +33,14 @@ async function createLineupImage(match) {
     );
 
 
+
     // Línea central
 
     ctx.beginPath();
 
-    ctx.moveTo(500,50);
+    ctx.moveTo(500, 50);
 
-    ctx.lineTo(500,650);
+    ctx.lineTo(500, 650);
 
     ctx.stroke();
 
@@ -59,7 +62,7 @@ async function createLineupImage(match) {
 
 
 
-    // Texto superior
+    // Formación
 
     ctx.fillStyle = "white";
 
@@ -71,53 +74,47 @@ async function createLineupImage(match) {
     ctx.fillText(
         `⚽ ${match.formation}`,
         500,
-        35
+        40
     );
 
 
 
     // Jugadores
 
-    const positions = Object.keys(match.players);
+    let y = 130;
 
 
-
-    let y = 120;
-
+    match.positions.forEach((position) => {
 
 
-    positions.forEach((position)=>{
+        const player =
+            match.players[position] || "Libre";
+
 
 
         ctx.font = "bold 28px Arial";
 
 
         ctx.fillText(
-
-            `${position}`,
-
+            position,
             500,
-
             y
-
         );
+
 
 
         ctx.font = "22px Arial";
 
 
         ctx.fillText(
-
-            match.players[position],
-
+            player,
             500,
-
-            y + 30
-
+            y + 35
         );
 
 
-        y += 70;
+
+        y += 80;
 
 
     });
