@@ -1,9 +1,9 @@
-const { 
-    SlashCommandBuilder, 
-    ActionRowBuilder, 
-    ButtonBuilder, 
-    ButtonStyle, 
-    EmbedBuilder 
+const {
+    SlashCommandBuilder,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    EmbedBuilder
 } = require("discord.js");
 
 module.exports = {
@@ -41,7 +41,7 @@ module.exports = {
                 text: "DT Manager • LPMX • Creado por 66luxe"
             });
 
-        const buttons = new ActionRowBuilder()
+        const row1 = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId("match_5v5")
@@ -61,12 +61,30 @@ module.exports = {
                 new ButtonBuilder()
                     .setCustomId("match_8v8")
                     .setLabel("⚽ 8v8")
+                    .setStyle(ButtonStyle.Primary),
+
+                new ButtonBuilder()
+                    .setCustomId("match_9v9")
+                    .setLabel("⚽ 9v9")
                     .setStyle(ButtonStyle.Primary)
+            );
+
+        const row2 = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId("match_10v10")
+                    .setLabel("⚽ 10v10")
+                    .setStyle(ButtonStyle.Success),
+
+                new ButtonBuilder()
+                    .setCustomId("match_11v11")
+                    .setLabel("⚽ 11v11")
+                    .setStyle(ButtonStyle.Danger)
             );
 
         await interaction.reply({
             embeds: [embed],
-            components: [buttons]
+            components: [row1, row2]
         });
     },
 };
