@@ -2,16 +2,13 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 
 const formations = require("../formations/formations");
 const matches = require("../data/matches");
-const createLineupImage = require("../utils/lineupImage");
 
 
 module.exports = {
 
     name: "interactionCreate",
 
-
     async execute(interaction) {
-
 
         if (!interaction.isButton()) return;
 
@@ -20,18 +17,14 @@ module.exports = {
         // Elegir formato
         if (interaction.customId.startsWith("match_")) {
 
-
             const format = interaction.customId.replace("match_", "");
 
             const availableFormations = Object.keys(formations[format]);
 
-
             const row = new ActionRowBuilder();
 
 
-
             availableFormations.forEach((formation) => {
-
 
                 row.addComponents(
 
@@ -45,7 +38,6 @@ module.exports = {
 
                 );
 
-
             });
 
 
@@ -53,13 +45,9 @@ module.exports = {
             await interaction.update({
 
                 content:
-
                     `⚽ **DT MANAGER**\n\n` +
-
                     `Formato seleccionado: **${format}**\n\n` +
-
                     `📐 Selecciona una formación:`,
-
 
                 components: [row]
 
@@ -69,6 +57,7 @@ module.exports = {
             return;
 
         }
+
 
 
 
@@ -115,7 +104,6 @@ module.exports = {
 
             await interaction.update({
 
-
                 content:
 
                     `⚽ **PARTIDO CREADO**\n\n` +
@@ -129,9 +117,7 @@ module.exports = {
                     createPlayerList(match),
 
 
-
                 components: createButtons(matchId, match)
-
 
             });
 
@@ -157,7 +143,6 @@ module.exports = {
             const positionIndex = Number(data[2]);
 
 
-
             const match = matches.get(matchId);
 
 
@@ -172,7 +157,6 @@ module.exports = {
 
             if (match.players[position]) {
 
-
                 return interaction.reply({
 
                     content: "❌ Esa posición ya está ocupada.",
@@ -180,7 +164,6 @@ module.exports = {
                     ephemeral: true
 
                 });
-
 
             }
 
@@ -198,7 +181,6 @@ module.exports = {
 
                 });
 
-
             }
 
 
@@ -207,9 +189,7 @@ module.exports = {
 
 
 
-
             await interaction.update({
-
 
                 content:
 
@@ -224,7 +204,6 @@ module.exports = {
                     `👥 Jugadores:\n\n` +
 
                     createPlayerList(match),
-
 
 
                 components: createButtons(matchId, match)
@@ -263,17 +242,11 @@ module.exports = {
 
                 });
 
-
             }
 
 
 
-            const image = await createLineupImage(match);
-
-
-
             await interaction.update({
-
 
                 content:
 
@@ -281,26 +254,12 @@ module.exports = {
 
                     `⚽ Formación: **${match.formation}**\n\n` +
 
-                    `DT Manager • 66luxe`,
+                    `👥 Jugadores:\n\n` +
 
-
-
-                files: [
-
-                    {
-
-                        attachment: image,
-
-                        name: "alineacion.png"
-
-                    }
-
-                ],
-
+                    createPlayerList(match),
 
 
                 components: []
-
 
             });
 
@@ -333,17 +292,13 @@ module.exports = {
 
                     delete match.players[position];
 
-
                 }
-
 
             }
 
 
 
-
             await interaction.update({
-
 
                 content:
 
@@ -356,18 +311,13 @@ module.exports = {
                     createPlayerList(match),
 
 
-
                 components: createButtons(matchId, match)
-
 
             });
 
-
         }
 
-
     }
-
 
 };
 
@@ -377,25 +327,20 @@ module.exports = {
 
 function createPlayerList(match) {
 
-
     let text = "";
-
 
 
     match.positions.forEach((position) => {
 
-
         text += `${position}: ${match.players[position] || "Libre"}\n`;
-
 
     });
 
 
-
     return text;
 
-
 }
+
 
 
 
@@ -412,7 +357,6 @@ function getStatus(match) {
 
         return "🟢 **EQUIPO COMPLETO**\n\n[Listo para iniciar]";
 
-
     }
 
 
@@ -420,6 +364,7 @@ function getStatus(match) {
     return `🟡 Buscando jugadores (${count}/${match.positions.length})`;
 
 }
+
 
 
 
@@ -434,45 +379,32 @@ function createButtons(matchId, match) {
 
 
 
-
     match.positions.forEach((position, index) => {
-
 
 
         row.addComponents(
 
-
             new ButtonBuilder()
-
 
                 .setCustomId(`join_${matchId}_${index}`)
 
-
                 .setLabel(position)
 
-
                 .setStyle(ButtonStyle.Success)
-
 
         );
 
 
 
-
         if (row.components.length === 5) {
-
 
             rows.push(row);
 
-
             row = new ActionRowBuilder();
-
 
         }
 
-
     });
-
 
 
 
@@ -480,30 +412,21 @@ function createButtons(matchId, match) {
 
 
 
-
     const extra = new ActionRowBuilder();
-
 
 
 
     extra.addComponents(
 
-
         new ButtonBuilder()
-
 
             .setCustomId(`leave_${matchId}`)
 
-
             .setLabel("🚪 Salir")
-
 
             .setStyle(ButtonStyle.Danger)
 
-
     );
-
-
 
 
 
@@ -512,24 +435,17 @@ function createButtons(matchId, match) {
 
         extra.addComponents(
 
-
             new ButtonBuilder()
-
 
                 .setCustomId(`start_${matchId}`)
 
-
                 .setLabel("🚀 Iniciar partido")
-
 
                 .setStyle(ButtonStyle.Primary)
 
-
         );
 
-
     }
-
 
 
 
@@ -538,6 +454,5 @@ function createButtons(matchId, match) {
 
 
     return rows;
-
 
 }
