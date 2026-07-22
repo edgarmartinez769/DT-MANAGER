@@ -2,6 +2,7 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 
 const formations = require("../formations/formations");
 const matches = require("../data/matches");
+const createLineupImage = require("../utils/lineupImage");
 
 
 module.exports = {
