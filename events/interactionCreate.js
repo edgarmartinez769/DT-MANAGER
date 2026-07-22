@@ -39,7 +39,7 @@ module.exports = {
             await interaction.update({
 
                 content:
-                    `⚽ **DT MANAGER**\n\n` +
+                    `⚽ **Tactify**\n\n` +
                     `Formato seleccionado: **${format}**\n\n` +
                     `📐 Selecciona una formación:`,
 
