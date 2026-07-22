@@ -51,7 +51,6 @@ module.exports = {
 
 
 
-
         // Crear partido
         if (interaction.customId.startsWith("formation_")) {
 
@@ -80,11 +79,7 @@ module.exports = {
 
                 positions,
 
-                players: {},
-
-                channel: interaction.channel.id,
-
-                message: null
+                players: {}
 
             };
 
@@ -93,11 +88,7 @@ module.exports = {
 
 
 
-            const rows = createPositionButtons(matchId, positions);
-
-
-
-            const message = await interaction.update({
+            await interaction.update({
 
                 content:
                     `⚽ **PARTIDO CREADO**\n\n` +
@@ -106,14 +97,10 @@ module.exports = {
                     `👥 Jugadores:\n\n` +
                     createPlayerList(match),
 
-                components: rows,
-
-                fetchReply: true
+                components: createButtons(matchId, match.positions)
 
             });
 
-
-            match.message = message.id;
 
             return;
         }
@@ -121,7 +108,7 @@ module.exports = {
 
 
 
-        // Unirse a posición
+        // Entrar a posición
         if (interaction.customId.startsWith("join_")) {
 
 
@@ -129,7 +116,6 @@ module.exports = {
 
 
             const matchId = data[1];
-
             const positionIndex = Number(data[2]);
 
 
@@ -168,6 +154,27 @@ module.exports = {
 
 
 
+            // Evitar que un jugador ocupe dos posiciones
+
+            const alreadyJoined = Object.values(match.players)
+                .includes(interaction.user.username);
+
+
+
+            if (alreadyJoined) {
+
+                return interaction.reply({
+
+                    content: "❌ Ya estás dentro del partido.",
+
+                    ephemeral: true
+
+                });
+
+            }
+
+
+
             match.players[position] = interaction.user.username;
 
 
@@ -181,7 +188,84 @@ module.exports = {
                     `👥 Jugadores:\n\n` +
                     createPlayerList(match),
 
-                components: createPositionButtons(matchId, match.positions)
+                components: createButtons(matchId, match.positions)
+
+            });
+
+
+            return;
+        }
+
+
+
+
+        // Salir del partido
+        if (interaction.customId.startsWith("leave_")) {
+
+
+            const matchId = interaction.customId.replace("leave_", "");
+
+
+            const match = matches.get(matchId);
+
+
+            if (!match) {
+
+                return interaction.reply({
+
+                    content: "❌ Partido no encontrado.",
+
+                    ephemeral: true
+
+                });
+
+            }
+
+
+
+            let removed = false;
+
+
+
+            for (const position in match.players) {
+
+
+                if (match.players[position] === interaction.user.username) {
+
+                    delete match.players[position];
+
+                    removed = true;
+
+                }
+
+            }
+
+
+
+            if (!removed) {
+
+                return interaction.reply({
+
+                    content: "❌ No estás dentro del partido.",
+
+                    ephemeral: true
+
+                });
+
+            }
+
+
+
+            await interaction.update({
+
+                content:
+                    `⚽ **PARTIDO CREADO**\n\n` +
+                    `👥 Formato: **${match.format}**\n` +
+                    `📐 Formación: **${match.formation}**\n\n` +
+                    `👥 Jugadores:\n\n` +
+                    createPlayerList(match),
+
+                components: createButtons(matchId, match.positions)
 
             });
 
@@ -212,12 +296,14 @@ function createPlayerList(match) {
 
 
 
-function createPositionButtons(matchId, positions) {
+
+function createButtons(matchId, positions) {
 
 
     const rows = [];
 
     let row = new ActionRowBuilder();
+
 
 
     positions.forEach((position, index) => {
@@ -236,6 +322,7 @@ function createPositionButtons(matchId, positions) {
         );
 
 
+
         if (row.components.length === 5) {
 
             rows.push(row);
@@ -244,8 +331,8 @@ function createPositionButtons(matchId, positions) {
 
         }
 
-
     });
+
 
 
     if (row.components.length > 0) {
@@ -253,6 +340,27 @@ function createPositionButtons(matchId, positions) {
         rows.push(row);
 
     }
+
+
+
+    const leaveRow = new ActionRowBuilder();
+
+
+    leaveRow.addComponents(
+
+        new ButtonBuilder()
+
+            .setCustomId(`leave_${matchId}`)
+
+            .setLabel("🚪 Salir del partido")
+
+            .setStyle(ButtonStyle.Danger)
+
+    );
+
+
+    rows.push(leaveRow);
+
 
 
     return rows;
