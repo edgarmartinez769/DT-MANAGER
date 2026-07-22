@@ -55,12 +55,12 @@ module.exports = {
             .setDescription(
                 `🏳️ **Equipo:** ${name}\n\n` +
                 `👑 **DT:** ${interaction.user}\n\n` +
-                `✅ DT Manager está listo para organizar tu equipo.`
+                `✅ Tactify está listo para organizar tu equipo.`
             )
 
             .setFooter({
 
-                text: "DT Manager • 66luxe"
+                text: "Tactify • 66luxe"
 
             });
 
