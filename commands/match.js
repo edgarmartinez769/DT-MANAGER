@@ -14,7 +14,7 @@ module.exports = {
     async execute(interaction) {
 
         const embed = new EmbedBuilder()
-            .setTitle("⚽ DT MANAGER")
+            .setTitle("⚽ Tactify")
             .setDescription(
                 "🏟️ **CREACIÓN DE PARTIDO**\n\n" +
                 "Selecciona el formato del encuentro:\n\n" +
@@ -38,7 +38,7 @@ module.exports = {
                 }
             )
             .setFooter({
-                text: "DT Manager • LPMX • Creado por 66luxe"
+                text: "Tactify • LPMX • Creado por 66luxe"
             });
 
         const row1 = new ActionRowBuilder()
