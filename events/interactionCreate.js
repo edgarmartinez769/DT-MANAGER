@@ -1,5 +1,9 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 
+const formations = require("../formations/formations");
+const matches = require("../data/matches");
+
+
 module.exports = {
     name: "interactionCreate",
 
@@ -25,53 +29,17 @@ module.exports = {
 
             const format = interaction.customId.replace("match_", "");
 
-            let formations = [];
+            const availableFormations = Object.keys(formations[format]);
 
 
-            if (format === "5v5") {
-                formations = [
-                    "🔷 2-1-1",
-                    "⚡ 1-2-1",
-                    "🛡️ 2-2"
-                ];
-            }
+            const buttons = new ActionRowBuilder();
 
 
-            if (format === "6v6") {
-                formations = [
-                    "🛡️ 2-2-1",
-                    "⚔️ 3-1-1",
-                    "⚡ 2-1-2"
-                ];
-            }
+            availableFormations.forEach((formation) => {
 
-
-            if (format === "7v7") {
-                formations = [
-                    "🛡️ 2-3-1",
-                    "⚔️ 3-2-1",
-                    "🔷 2-2-2",
-                    "⚡ 1-3-2"
-                ];
-            }
-
-
-            if (format === "8v8") {
-                formations = [
-                    "🛡️ 3-3-1",
-                    "⚔️ 3-2-2",
-                    "🔥 2-3-2"
-                ];
-            }
-
-
-            const formationButtons = new ActionRowBuilder();
-
-            formations.forEach((formation, index) => {
-
-                formationButtons.addComponents(
+                buttons.addComponents(
                     new ButtonBuilder()
-                        .setCustomId(`formation_${format}_${index}`)
+                        .setCustomId(`formation_${format}_${formation}`)
                         .setLabel(formation)
                         .setStyle(ButtonStyle.Secondary)
                 );
@@ -86,7 +54,66 @@ module.exports = {
                     `Formato seleccionado: **${format}**\n\n` +
                     `📐 Selecciona una formación:`,
 
-                components: [formationButtons]
+                components: [buttons]
+
+            });
+
+            return;
+        }
+
+
+
+        // Selección de formación
+        if (interaction.customId.startsWith("formation_")) {
+
+
+            const data = interaction.customId.split("_");
+
+
+            const format = data[1];
+            const formation = data[2];
+
+
+            const positions = formations[format][formation];
+
+
+            const matchId = Date.now().toString();
+
+
+
+            matches.set(matchId, {
+
+                creator: interaction.user.id,
+
+                format,
+
+                formation,
+
+                positions,
+
+                players: {}
+
+            });
+
+
+
+            await interaction.update({
+
+                content:
+                    `⚽ **PARTIDO CREADO**\n\n` +
+
+                    `👥 Formato: **${format}**\n` +
+
+                    `📐 Formación: **${formation}**\n\n` +
+
+                    `🟢 Estado: Buscando jugadores\n\n` +
+
+                    `Posiciones disponibles:\n\n` +
+
+                    positions.join("\n"),
+
+
+                components: []
 
             });
 
