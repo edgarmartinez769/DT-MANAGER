@@ -12,18 +12,6 @@ module.exports = {
         if (!interaction.isButton()) return;
 
 
-        // Botón de prueba
-        if (interaction.customId === "test_button") {
-
-            await interaction.reply({
-                content: "🔥 ¡Botón funcionando correctamente!",
-                ephemeral: true
-            });
-
-            return;
-        }
-
-
 
         // Elegir formato
         if (interaction.customId.startsWith("match_")) {
@@ -32,12 +20,12 @@ module.exports = {
 
             const availableFormations = Object.keys(formations[format]);
 
-            const buttons = new ActionRowBuilder();
+            const row = new ActionRowBuilder();
 
 
             availableFormations.forEach((formation) => {
 
-                buttons.addComponents(
+                row.addComponents(
                     new ButtonBuilder()
                         .setCustomId(`formation_${format}_${formation}`)
                         .setLabel(formation)
@@ -54,7 +42,7 @@ module.exports = {
                     `Formato seleccionado: **${format}**\n\n` +
                     `📐 Selecciona una formación:`,
 
-                components: [buttons]
+                components: [row]
 
             });
 
@@ -63,14 +51,17 @@ module.exports = {
 
 
 
-        // Elegir formación y crear partido
+
+        // Crear partido
         if (interaction.customId.startsWith("formation_")) {
 
 
             const data = interaction.customId.split("_");
 
+
             const format = data[1];
             const formation = data[2];
+
 
             const positions = formations[format][formation];
 
@@ -79,7 +70,7 @@ module.exports = {
 
 
 
-            matches.set(matchId, {
+            const match = {
 
                 creator: interaction.user.id,
 
@@ -89,69 +80,48 @@ module.exports = {
 
                 positions,
 
-                players: {}
+                players: {},
 
-            });
+                channel: interaction.channel.id,
 
+                message: null
 
-
-            const positionRows = [];
-
-            let row = new ActionRowBuilder();
+            };
 
 
-
-            positions.forEach((position, index) => {
-
-                row.addComponents(
-
-                    new ButtonBuilder()
-                        .setCustomId(`join_${matchId}_${index}`)
-                        .setLabel(position)
-                        .setStyle(ButtonStyle.Success)
-
-                );
-
-
-                if (row.components.length === 5) {
-
-                    positionRows.push(row);
-                    row = new ActionRowBuilder();
-
-                }
-
-            });
+            matches.set(matchId, match);
 
 
 
-            if (row.components.length > 0) {
-
-                positionRows.push(row);
-
-            }
+            const rows = createPositionButtons(matchId, positions);
 
 
 
-            await interaction.update({
+            const message = await interaction.update({
 
                 content:
                     `⚽ **PARTIDO CREADO**\n\n` +
                     `👥 Formato: **${format}**\n` +
                     `📐 Formación: **${formation}**\n\n` +
-                    `🟢 Estado: Buscando jugadores\n\n` +
-                    `Selecciona tu posición:`,
+                    `👥 Jugadores:\n\n` +
+                    createPlayerList(match),
 
-                components: positionRows
+                components: rows,
+
+                fetchReply: true
 
             });
 
+
+            match.message = message.id;
 
             return;
         }
 
 
 
-        // Unirse a una posición
+
+        // Unirse a posición
         if (interaction.customId.startsWith("join_")) {
 
 
@@ -159,6 +129,7 @@ module.exports = {
 
 
             const matchId = data[1];
+
             const positionIndex = Number(data[2]);
 
 
@@ -167,15 +138,14 @@ module.exports = {
 
             if (!match) {
 
-                await interaction.reply({
+                return interaction.reply({
 
-                    content: "❌ Este partido ya no existe.",
+                    content: "❌ Partido no encontrado.",
 
                     ephemeral: true
 
                 });
 
-                return;
             }
 
 
@@ -184,11 +154,9 @@ module.exports = {
 
 
 
-            // Revisar si la posición ya está ocupada
-
             if (match.players[position]) {
 
-                await interaction.reply({
+                return interaction.reply({
 
                     content: "❌ Esa posición ya está ocupada.",
 
@@ -196,26 +164,11 @@ module.exports = {
 
                 });
 
-                return;
-
             }
 
 
 
-            // Guardar jugador
-
             match.players[position] = interaction.user.username;
-
-
-
-            let playerList = "";
-
-
-            match.positions.forEach((pos) => {
-
-                playerList += `\n${pos}: ${match.players[pos] || "Libre"}`;
-
-            });
 
 
 
@@ -225,13 +178,83 @@ module.exports = {
                     `⚽ **PARTIDO CREADO**\n\n` +
                     `👥 Formato: **${match.format}**\n` +
                     `📐 Formación: **${match.formation}**\n\n` +
-                    `👥 Jugadores:${playerList}`,
+                    `👥 Jugadores:\n\n` +
+                    createPlayerList(match),
 
-                components: []
+                components: createPositionButtons(matchId, match.positions)
 
             });
 
         }
 
-    },
+    }
+
 };
+
+
+
+function createPlayerList(match) {
+
+
+    let text = "";
+
+
+    match.positions.forEach((position) => {
+
+        text += `${position}: ${match.players[position] || "Libre"}\n`;
+
+    });
+
+
+    return text;
+
+}
+
+
+
+function createPositionButtons(matchId, positions) {
+
+
+    const rows = [];
+
+    let row = new ActionRowBuilder();
+
+
+    positions.forEach((position, index) => {
+
+
+        row.addComponents(
+
+            new ButtonBuilder()
+
+                .setCustomId(`join_${matchId}_${index}`)
+
+                .setLabel(position)
+
+                .setStyle(ButtonStyle.Success)
+
+        );
+
+
+        if (row.components.length === 5) {
+
+            rows.push(row);
+
+            row = new ActionRowBuilder();
+
+        }
+
+
+    });
+
+
+    if (row.components.length > 0) {
+
+        rows.push(row);
+
+    }
+
+
+    return rows;
+
+}
