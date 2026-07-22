@@ -1,0 +1,9 @@
+{
+  "name": "dt-manager",
+  "version": "0.1.0",
+  "description": "Discord football manager bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  }
+}
