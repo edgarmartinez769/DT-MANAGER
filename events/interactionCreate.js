@@ -8,7 +8,7 @@ module.exports = {
     async execute(interaction) {
         if (!interaction.isButton()) return;
 
-        // Elegir formato
+        // 1. Seleccionar formato
         if (interaction.customId.startsWith("match_")) {
             const format = interaction.customId.replace("match_", "");
             const availableFormations = Object.keys(formations[format]);
@@ -33,7 +33,7 @@ module.exports = {
             return;
         }
 
-        // Crear partido
+        // 2. Crear partido
         if (interaction.customId.startsWith("formation_")) {
             const data = interaction.customId.split("_");
             const format = data[1];
@@ -65,7 +65,7 @@ module.exports = {
             return;
         }
 
-        // Entrar a posición (Por índice de botón)
+        // 3. Entrar a posición (Por índice de botón único)
         if (interaction.customId.startsWith("join_")) {
             const data = interaction.customId.split("_");
             const matchId = data[1];
@@ -103,7 +103,7 @@ module.exports = {
             return;
         }
 
-        // Iniciar partido (Corregido tiempo de respuesta de Discord)
+        // 4. Iniciar partido
         if (interaction.customId.startsWith("start_")) {
             const createLineupImage = require("../utils/lineupImage");
             const matchId = interaction.customId.replace("start_", "");
@@ -119,7 +119,7 @@ module.exports = {
             }
 
             try {
-                // Le avisa a Discord que procesará la imagen para no dar time-out
+                // Notificar respuesta en proceso para prevenir timeout
                 await interaction.deferUpdate();
 
                 const image = await createLineupImage(match);
@@ -138,16 +138,16 @@ module.exports = {
                     components: []
                 });
             } catch (error) {
-                console.error(error);
+                console.error("Error iniciando partido:", error);
                 await interaction.followUp({
-                    content: "❌ Error generando la imagen.",
+                    content: "❌ Ocurrió un error al generar la imagen.",
                     ephemeral: true
                 });
             }
             return;
         }
 
-        // Salir del partido
+        // 5. Salir del partido
         if (interaction.customId.startsWith("leave_")) {
             const matchId = interaction.customId.replace("leave_", "");
             const match = matches.get(matchId);
