@@ -1,42 +1,58 @@
-const { createCanvas, loadImage } = require('canvas');
-const path = require('path');
+const { createCanvas } = require('canvas');
 
 async function createLineupImage(match) {
-    const canvas = createCanvas(800, 600);
+    const width = 800;
+    const height = 500;
+    const canvas = createCanvas(width, height);
     const ctx = canvas.getContext('2d');
 
-    // Cargar cancha de fondo
-    const bgPath = path.join(__dirname, '../assets/pitch.png');
-    try {
-        const background = await loadImage(bgPath);
-        ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-    } catch (e) {
-        // Si no hay fondo, dibujar cancha básica
-        ctx.fillStyle = '#2e7d32';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
+    // 1. Dibujar cancha verde básico
+    ctx.fillStyle = '#228B22';
+    ctx.fillRect(0, 0, width, height);
 
-    // Configuración de texto
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 18px Sans-serif';
+    // Líneas de la cancha (borde y centro)
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(20, 20, width - 40, height - 40);
+    
+    ctx.beginPath();
+    ctx.moveTo(width / 2, 20);
+    ctx.lineTo(width / 2, height - 20);
+    ctx.stroke();
 
-    // Coordenadas o distribución por índice de posición
-    const totalPositions = match.positions.length;
+    ctx.beginPath();
+    ctx.arc(width / 2, height / 2, 60, 0, Math.PI * 2);
+    ctx.stroke();
 
+    // 2. Posicionar a los jugadores
+    const total = match.positions.length;
+    
     match.positions.forEach((posName, index) => {
-        const player = match.players[index] || "Libre";
+        const player = match.players[index] || "Vacío";
 
-        // Distribución horizontal según número de jugadores
-        const x = (canvas.width / (totalPositions + 1)) * (index + 1);
-        const y = canvas.height / 2; 
+        // Calcular coordenadas distribuidas de forma equitativa
+        const x = (width / (total + 1)) * (index + 1);
+        const y = height / 2;
 
-        // Dibujar jugador y posición
-        ctx.fillStyle = '#ffcc00';
-        ctx.fillText(posName, x, y - 10);
+        // Círculo del jugador
+        ctx.fillStyle = '#1e90ff';
+        ctx.beginPath();
+        ctx.arc(x, y - 20, 25, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
 
+        // Texto de Posición
+        ctx.textAlign = 'center';
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(player, x, y + 15);
+        ctx.font = 'bold 16px Sans-Serif';
+        ctx.fillText(posName, x, y - 14);
+
+        // Nombre del jugador
+        ctx.fillStyle = '#ffff00';
+        ctx.font = 'bold 18px Sans-Serif';
+        ctx.fillText(player, x, y + 25);
     });
 
     return canvas.toBuffer();
