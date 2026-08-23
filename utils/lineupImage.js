@@ -1,130 +1,45 @@
-const { createCanvas } = require("canvas");
-
+const { createCanvas, loadImage } = require('canvas');
+const path = require('path');
 
 async function createLineupImage(match) {
+    const canvas = createCanvas(800, 600);
+    const ctx = canvas.getContext('2d');
 
+    // Cargar cancha de fondo
+    const bgPath = path.join(__dirname, '../assets/pitch.png');
+    try {
+        const background = await loadImage(bgPath);
+        ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    } catch (e) {
+        // Si no hay fondo, dibujar cancha básica
+        ctx.fillStyle = '#2e7d32';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
 
-    const canvas = createCanvas(1000, 700);
+    // Configuración de texto
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 18px Sans-serif';
 
-    const ctx = canvas.getContext("2d");
+    // Coordenadas o distribución por índice de posición
+    const totalPositions = match.positions.length;
 
+    match.positions.forEach((posName, index) => {
+        const player = match.players[index] || "Libre";
 
+        // Distribución horizontal según número de jugadores
+        const x = (canvas.width / (totalPositions + 1)) * (index + 1);
+        const y = canvas.height / 2; 
 
-    // Fondo de cancha
+        // Dibujar jugador y posición
+        ctx.fillStyle = '#ffcc00';
+        ctx.fillText(posName, x, y - 10);
 
-    ctx.fillStyle = "#1f8f3a";
-
-    ctx.fillRect(0, 0, 1000, 700);
-
-
-
-    // Líneas de cancha
-
-    ctx.strokeStyle = "white";
-
-    ctx.lineWidth = 5;
-
-
-    ctx.strokeRect(
-        50,
-        50,
-        900,
-        600
-    );
-
-
-
-    // Línea central
-
-    ctx.beginPath();
-
-    ctx.moveTo(500, 50);
-
-    ctx.lineTo(500, 650);
-
-    ctx.stroke();
-
-
-
-    // Círculo central
-
-    ctx.beginPath();
-
-    ctx.arc(
-        500,
-        350,
-        80,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.stroke();
-
-
-
-    // Formación
-
-    ctx.fillStyle = "white";
-
-    ctx.font = "bold 40px Arial";
-
-    ctx.textAlign = "center";
-
-
-    ctx.fillText(
-        `⚽ ${match.formation}`,
-        500,
-        40
-    );
-
-
-
-    // Jugadores
-
-    let y = 130;
-
-
-    match.positions.forEach((position) => {
-
-
-        const player =
-            match.players[position] || "Libre";
-
-
-
-        ctx.font = "bold 28px Arial";
-
-
-        ctx.fillText(
-            position,
-            500,
-            y
-        );
-
-
-
-        ctx.font = "22px Arial";
-
-
-        ctx.fillText(
-            player,
-            500,
-            y + 35
-        );
-
-
-
-        y += 80;
-
-
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(player, x, y + 15);
     });
 
-
-
     return canvas.toBuffer();
-
 }
-
-
 
 module.exports = createLineupImage;
