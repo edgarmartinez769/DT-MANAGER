@@ -8,7 +8,7 @@ module.exports = {
     async execute(interaction) {
         if (!interaction.isButton()) return;
 
-        // 1. Elegir formato
+        // Elegir formato
         if (interaction.customId.startsWith("match_")) {
             const format = interaction.customId.replace("match_", "");
             const availableFormations = Object.keys(formations[format]);
@@ -33,7 +33,7 @@ module.exports = {
             return;
         }
 
-        // 2. Crear partido
+        // Crear partido
         if (interaction.customId.startsWith("formation_")) {
             const data = interaction.customId.split("_");
             const format = data[1];
@@ -47,7 +47,7 @@ module.exports = {
                 format,
                 formation,
                 positions,
-                players: {} // Guarda por índice: { 0: "usuario1", 1: "usuario2" }
+                players: {} // Guarda { 0: "user1", 1: "user2" }
             };
 
             matches.set(matchId, match);
@@ -65,7 +65,7 @@ module.exports = {
             return;
         }
 
-        // 3. Entrar a posición
+        // Entrar a posición (Por índice de botón)
         if (interaction.customId.startsWith("join_")) {
             const data = interaction.customId.split("_");
             const matchId = data[1];
@@ -74,7 +74,6 @@ module.exports = {
             const match = matches.get(matchId);
             if (!match) return;
 
-            // Verificar si esa ranura específica ya está ocupada
             if (match.players[positionIndex]) {
                 return interaction.reply({
                     content: "❌ Esa posición ya está ocupada.",
@@ -82,7 +81,6 @@ module.exports = {
                 });
             }
 
-            // Verificar si el usuario ya está dentro del partido
             if (Object.values(match.players).includes(interaction.user.username)) {
                 return interaction.reply({
                     content: "❌ Ya estás dentro del partido.",
@@ -90,7 +88,7 @@ module.exports = {
                 });
             }
 
-            // Asignar al índice exacto del botón que presionó
+            // Guardar por índice único
             match.players[positionIndex] = interaction.user.username;
 
             await interaction.update({
@@ -106,7 +104,7 @@ module.exports = {
             return;
         }
 
-        // 4. Iniciar partido
+        // Iniciar partido
         if (interaction.customId.startsWith("start_")) {
             const createLineupImage = require("../utils/lineupImage");
             const matchId = interaction.customId.replace("start_", "");
@@ -147,7 +145,7 @@ module.exports = {
             return;
         }
 
-        // 5. Salir del partido
+        // Salir del partido
         if (interaction.customId.startsWith("leave_")) {
             const matchId = interaction.customId.replace("leave_", "");
             const match = matches.get(matchId);
