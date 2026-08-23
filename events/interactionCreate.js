@@ -8,7 +8,7 @@ module.exports = {
     async execute(interaction) {
         if (!interaction.isButton()) return;
 
-        // Elegir formato
+        // 1. Elegir formato
         if (interaction.customId.startsWith("match_")) {
             const format = interaction.customId.replace("match_", "");
             const availableFormations = Object.keys(formations[format]);
@@ -33,7 +33,7 @@ module.exports = {
             return;
         }
 
-        // Crear partido
+        // 2. Crear partido
         if (interaction.customId.startsWith("formation_")) {
             const data = interaction.customId.split("_");
             const format = data[1];
@@ -47,7 +47,7 @@ module.exports = {
                 format,
                 formation,
                 positions,
-                players: {}
+                players: {} // { 0: "usuario1", 1: "usuario2" } por índice
             };
 
             matches.set(matchId, match);
@@ -65,7 +65,7 @@ module.exports = {
             return;
         }
 
-        // Entrar a posición
+        // 3. Entrar a posición por índice de botón
         if (interaction.customId.startsWith("join_")) {
             const data = interaction.customId.split("_");
             const matchId = data[1];
@@ -74,16 +74,15 @@ module.exports = {
             const match = matches.get(matchId);
             if (!match) return;
 
-            // Usamos la posición con su índice único (ej: "0-DEF", "1-DEF")
-            const positionKey = `${positionIndex}-${match.positions[positionIndex]}`;
-
-            if (match.players[positionKey]) {
+            // Verificar si el casillero exacto por índice ya está ocupado
+            if (match.players[positionIndex]) {
                 return interaction.reply({
                     content: "❌ Esa posición ya está ocupada.",
                     ephemeral: true
                 });
             }
 
+            // Verificar si el usuario ya está anotado en otra posición
             if (Object.values(match.players).includes(interaction.user.username)) {
                 return interaction.reply({
                     content: "❌ Ya estás dentro del partido.",
@@ -91,7 +90,8 @@ module.exports = {
                 });
             }
 
-            match.players[positionKey] = interaction.user.username;
+            // Guardar por ÍNDICE (ejemplo: 0: "alecr7", 1: "iangallo")
+            match.players[positionIndex] = interaction.user.username;
 
             await interaction.update({
                 content:
@@ -106,7 +106,7 @@ module.exports = {
             return;
         }
 
-        // Iniciar partido
+        // 4. Iniciar partido
         if (interaction.customId.startsWith("start_")) {
             const createLineupImage = require("../utils/lineupImage");
             const matchId = interaction.customId.replace("start_", "");
@@ -147,15 +147,15 @@ module.exports = {
             return;
         }
 
-        // Salir del partido
+        // 5. Salir del partido
         if (interaction.customId.startsWith("leave_")) {
             const matchId = interaction.customId.replace("leave_", "");
             const match = matches.get(matchId);
 
             if (match) {
-                for (const posKey in match.players) {
-                    if (match.players[posKey] === interaction.user.username) {
-                        delete match.players[posKey];
+                for (const index in match.players) {
+                    if (match.players[index] === interaction.user.username) {
+                        delete match.players[index];
                     }
                 }
 
@@ -178,8 +178,8 @@ function createPlayerList(match) {
     let text = "";
 
     match.positions.forEach((position, index) => {
-        const positionKey = `${index}-${position}`;
-        text += `${position}: ${match.players[positionKey] || "Libre"}\n`;
+        const player = match.players[index];
+        text += `${position}: ${player || "Libre"}\n`;
     });
 
     return text;
@@ -200,8 +200,7 @@ function createButtons(matchId, match) {
     let row = new ActionRowBuilder();
 
     match.positions.forEach((position, index) => {
-        const positionKey = `${index}-${position}`;
-        const isTaken = !!match.players[positionKey];
+        const isTaken = !!match.players[index];
 
         row.addComponents(
             new ButtonBuilder()
