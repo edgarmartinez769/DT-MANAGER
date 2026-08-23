@@ -47,7 +47,7 @@ module.exports = {
                 format,
                 formation,
                 positions,
-                players: {} // { 0: "usuario1", 1: "usuario2" } por índice
+                players: {} // Guarda por índice: { 0: "usuario1", 1: "usuario2" }
             };
 
             matches.set(matchId, match);
@@ -65,7 +65,7 @@ module.exports = {
             return;
         }
 
-        // 3. Entrar a posición por índice de botón
+        // 3. Entrar a posición
         if (interaction.customId.startsWith("join_")) {
             const data = interaction.customId.split("_");
             const matchId = data[1];
@@ -74,7 +74,7 @@ module.exports = {
             const match = matches.get(matchId);
             if (!match) return;
 
-            // Verificar si el casillero exacto por índice ya está ocupado
+            // Verificar si esa ranura específica ya está ocupada
             if (match.players[positionIndex]) {
                 return interaction.reply({
                     content: "❌ Esa posición ya está ocupada.",
@@ -82,7 +82,7 @@ module.exports = {
                 });
             }
 
-            // Verificar si el usuario ya está anotado en otra posición
+            // Verificar si el usuario ya está dentro del partido
             if (Object.values(match.players).includes(interaction.user.username)) {
                 return interaction.reply({
                     content: "❌ Ya estás dentro del partido.",
@@ -90,7 +90,7 @@ module.exports = {
                 });
             }
 
-            // Guardar por ÍNDICE (ejemplo: 0: "alecr7", 1: "iangallo")
+            // Asignar al índice exacto del botón que presionó
             match.players[positionIndex] = interaction.user.username;
 
             await interaction.update({
@@ -153,9 +153,9 @@ module.exports = {
             const match = matches.get(matchId);
 
             if (match) {
-                for (const index in match.players) {
-                    if (match.players[index] === interaction.user.username) {
-                        delete match.players[index];
+                for (const idx in match.players) {
+                    if (match.players[idx] === interaction.user.username) {
+                        delete match.players[idx];
                     }
                 }
 
