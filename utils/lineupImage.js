@@ -1,58 +1,58 @@
 const { createCanvas } = require('canvas');
 
 async function createLineupImage(match) {
-    const width = 800;
-    const height = 500;
-    const canvas = createCanvas(width, height);
+    const canvas = createCanvas(1000, 600);
     const ctx = canvas.getContext('2d');
 
-    // 1. Dibujar cancha verde básico
-    ctx.fillStyle = '#228B22';
-    ctx.fillRect(0, 0, width, height);
+    // Canvas base (Cancha de fútbol)
+    ctx.fillStyle = '#1e702d';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Líneas de la cancha (borde y centro)
+    // Borde de la cancha
     ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(20, 20, width - 40, height - 40);
-    
+    ctx.lineWidth = 5;
+    ctx.strokeRect(30, 30, canvas.width - 60, canvas.height - 60);
+
+    // Línea central y círculo
     ctx.beginPath();
-    ctx.moveTo(width / 2, 20);
-    ctx.lineTo(width / 2, height - 20);
+    ctx.moveTo(canvas.width / 2, 30);
+    ctx.lineTo(canvas.width / 2, canvas.height - 30);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.arc(width / 2, height / 2, 60, 0, Math.PI * 2);
+    ctx.arc(canvas.width / 2, canvas.height / 2, 80, 0, Math.PI * 2);
     ctx.stroke();
 
-    // 2. Posicionar a los jugadores
-    const total = match.positions.length;
-    
+    // Dibujar posiciones y jugadores por índice
+    const totalPos = match.positions.length;
+
     match.positions.forEach((posName, index) => {
-        const player = match.players[index] || "Vacío";
+        const playerName = match.players[index] || "Libre";
 
-        // Calcular coordenadas distribuidas de forma equitativa
-        const x = (width / (total + 1)) * (index + 1);
-        const y = height / 2;
+        // Coordenadas calculadas dinámicamente
+        const x = (canvas.width / (totalPos + 1)) * (index + 1);
+        const y = canvas.height / 2;
 
-        // Círculo del jugador
-        ctx.fillStyle = '#1e90ff';
+        // Ficha del jugador
+        ctx.fillStyle = '#0f172a';
         ctx.beginPath();
-        ctx.arc(x, y - 20, 25, 0, Math.PI * 2);
+        ctx.arc(x, y - 15, 30, 0, Math.PI * 2);
         ctx.fill();
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
+
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 3;
         ctx.stroke();
 
-        // Texto de Posición
+        // Posición
         ctx.textAlign = 'center';
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 16px Sans-Serif';
-        ctx.fillText(posName, x, y - 14);
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = 'bold 16px sans-serif';
+        ctx.fillText(posName, x, y - 10);
 
         // Nombre del jugador
-        ctx.fillStyle = '#ffff00';
-        ctx.font = 'bold 18px Sans-Serif';
-        ctx.fillText(player, x, y + 25);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 18px sans-serif';
+        ctx.fillText(playerName, x, y + 35);
     });
 
     return canvas.toBuffer();
