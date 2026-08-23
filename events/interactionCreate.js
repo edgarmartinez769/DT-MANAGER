@@ -47,7 +47,7 @@ module.exports = {
                 format,
                 formation,
                 positions,
-                players: {} // Guarda { 0: "user1", 1: "user2" }
+                players: {}
             };
 
             matches.set(matchId, match);
@@ -88,7 +88,6 @@ module.exports = {
                 });
             }
 
-            // Guardar por índice único
             match.players[positionIndex] = interaction.user.username;
 
             await interaction.update({
@@ -104,7 +103,7 @@ module.exports = {
             return;
         }
 
-        // Iniciar partido
+        // Iniciar partido (Corregido tiempo de respuesta de Discord)
         if (interaction.customId.startsWith("start_")) {
             const createLineupImage = require("../utils/lineupImage");
             const matchId = interaction.customId.replace("start_", "");
@@ -120,9 +119,12 @@ module.exports = {
             }
 
             try {
+                // Le avisa a Discord que procesará la imagen para no dar time-out
+                await interaction.deferUpdate();
+
                 const image = await createLineupImage(match);
 
-                await interaction.update({
+                await interaction.editReply({
                     content:
                         `🚀 **PARTIDO INICIADO**\n\n` +
                         `⚽ Formación: **${match.formation}**\n\n` +
@@ -137,7 +139,7 @@ module.exports = {
                 });
             } catch (error) {
                 console.error(error);
-                await interaction.reply({
+                await interaction.followUp({
                     content: "❌ Error generando la imagen.",
                     ephemeral: true
                 });
